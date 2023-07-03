@@ -27,16 +27,18 @@ const (
 	shiftTime = bitLenSequence + bitLenWorkerId
 	// 时间值开始时间
 	startTime = 1609430400000 // 2021-01-01 00:00:00
-	// 最多能用多少年
-	maxYears  = (1 << bitLenTime) / (1000 * 60 * 60 * 24 * 365)
-	// 理论上每秒最多可生成多少个id
-	maxIdCountPerSecond = (1 << bitLenSequence) * 1000
+	//// 最多能用多少年
+	//maxYears = (1 << bitLenTime) / (1000 * 60 * 60 * 24 * 365)
+	//// 理论上每秒最多可生成多少个id
+	//maxIdCountPerSecond = (1 << bitLenSequence) * 1000
 )
 
 type SnowFlake struct {
 	// 区分进程的id,不同的进程不能重复
+	// process id
 	workerId uint16
 	// 当前时间周期(毫秒)
+	// current time cycle (time.Millisecond)
 	timeAndSequence *timeCycle
 }
 
@@ -106,8 +108,8 @@ func (sf *SnowFlake) NextId() uint64 {
 				}
 			}
 		}
-		// 时间值 + WorkerId + 序号
-		return (uint64(curTime - startTime) << shiftTime) | (uint64(sf.workerId) << shiftWorkerId) | uint64(newSequence)
+		// time | WorkerId | sequence
+		return (uint64(curTime-startTime) << shiftTime) | (uint64(sf.workerId) << shiftWorkerId) | uint64(newSequence)
 	}
 }
 

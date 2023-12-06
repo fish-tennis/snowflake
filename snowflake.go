@@ -84,18 +84,15 @@ func (sf *SnowFlake) NextId() uint64 {
 			// 时间值必须是越来越大的
 			// new timeCycle'time must greater than old
 			if now < curTime {
-				println(fmt.Sprintf("now(%v) < curTime(%v))", now, curTime))
 				// 有可能手动设置了系统时间,导致时间后退了
 				// It is possible that the system time was manually set, causing the time to go back
-				if curTime-now <= int64(time.Second/time.Millisecond) {
-					// 如果时间回退在1秒钟之内,则等待时间追上
-					// If the time goes back less than 1 second, sleep for awhile
-					time.Sleep(time.Duration(curTime-now))
-					continue
+				println(fmt.Sprintf("now(%v) < curTime(%v))", now, curTime))
+				sleepTime := time.Duration(curTime-now) * time.Millisecond
+				if sleepTime > time.Second {
+					sleepTime = time.Second
 				}
-				// 时间回退超过1秒钟,则继续运行,防止"死循环",但是后面生成的id不排除有重复值
-				// If the time goes back more than 1 second, continue running to prevent a "dead loop",
-				// but the id generated later may not unique
+				time.Sleep(sleepTime)
+				continue
 			}
 			newTimeCycle := &timeCycle{
 				sequence: 0,
